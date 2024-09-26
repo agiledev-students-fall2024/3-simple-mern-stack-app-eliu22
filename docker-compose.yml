@@ -1,18 +1,25 @@
 services:
-  databse:
+  database:
     image: mongo:latest
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_USERNAME=secret
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - MONGO_INITDB_DATABASE=example-mern-stack-app
     ports:
       - "27017:27017"
+    networks:
+      - app-network
   backend:
     image: agile-back-end
     build: ./back-end
     env_file:
       - ./back-end/.env
+    depends_on:
+      - database
     ports:
       - "5002:5002"
+    networks:
+      - app-network
   frontend:
     image: agile-front-end
     build: ./front-end
@@ -20,3 +27,11 @@ services:
       - ./front-end/.env
     ports:
       - "7002:7002"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
